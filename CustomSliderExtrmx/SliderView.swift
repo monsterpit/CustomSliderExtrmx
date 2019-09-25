@@ -24,6 +24,8 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
     
     var selectedIndex : Int = 0
     
+    private var cornerRadius : CGFloat = 0
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -39,6 +41,7 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
         
         colorCodeViews = colors
         
+        self.cornerRadius = cornerRadius
         
         roundedCornerView(cornerRadius : cornerRadius)
 
@@ -47,41 +50,10 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
         setupSkinToneView()
         
         
-        circleView.image = makeCircleWith(imageSize: 50,backgroundColor: #colorLiteral(red: 0.7805789832, green: 0.02354164009, blue: 0.9616711612, alpha: 1))
-//        circleView.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
-//        
-////        let attribute = skinToneCollectionView.layoutAttributesForItem(at: IndexPath(item: 0, section: 0))
-////        circleView.frame = attribute?.frame ?? CGRect.zero
-////        print(circleView.frame )
-        
-        
-        
-        super.addSubview(circleView)
-        
+        circleView.image = makeCircleWith(imageSize: 100,backgroundColor: #colorLiteral(red: 0.7805789832, green: 0.02354164009, blue: 0.9616711612, alpha: 1))
+      
+        addSubview(circleView)
 
-        
-
-        
-//        let stackView = UIStackView()
-//
-//        stackView.axis = .horizontal
-//        stackView.distribution = .fillEqually
-        
-        
-
-        
-        
-//        let button1 = UIButton()
-//        button1.backgroundColor = #colorLiteral(red: 1, green: 0.6661287546, blue: 0.656347692, alpha: 1)
-//
-//        button1.addTarget(self, action:#selector(didTap(_:)), for: .touchUpInside)
-//
-//        let button2 = UIButton()
-//        button2.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
-//        button2.addTarget(self, action:#selector(didTap(_:)), for: .touchUpInside)
-//
-//        stackView.addArrangedSubview(button1)
-//        stackView.addArrangedSubview(button2)
     }
 
 
@@ -215,8 +187,8 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         let size = frame.width/CGFloat(colorCodeViews.count)
-        
-        return CGSize(width: size, height: size)
+   
+        return CGSize(width: size, height: (cornerRadius*2) )
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -236,32 +208,34 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
         print(indexPath.item)
         
         let attribute = collectionView.layoutAttributesForItem(at: indexPath)
-        circleView.frame = attribute?.frame ?? CGRect.zero
+        let cellFrame = attribute?.frame ?? CGRect.zero
+        
+        let cellHeight : CGFloat = (cornerRadius * 2)
+        
+        let extraSpacing : CGFloat = (cellFrame.width) / 2 > 20 ? 20 : (cellFrame.width) / 2
+        
+        
+
+        circleView.frame = CGRect(x: ((cellFrame.midX - cornerRadius) - (extraSpacing/2) ), y: (cellFrame.minY - (extraSpacing/2)), width: (cellHeight) + extraSpacing , height: (cellHeight) + extraSpacing)
+     
+        if colorCodeViews.count != 1 {
+
+            let cellPaddingForFirstAndLast : CGFloat = 5
+            
+            if indexPath.item == 0 {
+                circleView.frame = CGRect(x: -(cellPaddingForFirstAndLast), y: (cellFrame.minY - (extraSpacing/2)), width: (cellHeight) + extraSpacing , height: (cellHeight) + extraSpacing)
+            }
+            else if indexPath.item == (colorCodeViews.count - 1){
+                circleView.frame = CGRect(x: ((cellFrame.maxX - (cellHeight) - extraSpacing) + (cellPaddingForFirstAndLast) ), y: (cellFrame.minY - (extraSpacing/2)), width: (cellHeight) + extraSpacing , height: (cellHeight) + extraSpacing)
+            }
+
+        }
+        
+        
         print(circleView.frame)
     }
     
     
-//    @objc func didTap(_ sender: Any) {
-//
-//        // make sure the sender is a button
-//        guard let btn = sender as? UIButton else { return }
-//
-//        // make sure the button's superview is a stack view
-//        guard let stack = btn.superview as? UIStackView else { return }
-//
-//        // get the array of arranged subviews
-//        let theArray = stack.arrangedSubviews
-//
-//
-//
-//       // get the "index" of the tapped button
-//        if let idx = theArray.firstIndex(of: btn) {
-//            print(idx)
-//        } else {
-//            print("Should never fail...")
-//        }
-//
-//    }
  
     fileprivate func makeCircleWith(imageSize: Int, backgroundColor: UIColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)) -> UIImage? {
         
@@ -269,8 +243,6 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
         
         UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
         let context = UIGraphicsGetCurrentContext()
-        //context?.setFillColor(backgroundColor.cgColor)
-        //  context?.setStrokeColor(UIColor.blue.cgColor)
         
         //change the divider to change the border width
         let borderWidth = imageSize/10
@@ -278,10 +250,6 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
         let circelWidthNHeight = (imageSize - (borderWidth * 2))
         
         let bounds = CGRect(x: borderWidth, y: borderWidth, width: circelWidthNHeight, height: circelWidthNHeight)
-        
-        //let bounds = CGRect(origin: .zero, size: CGSize(width: size.width - 10, height: size.height - 10))
-        // context?.addEllipse(in: bounds)
-        // context?.drawPath(using: .fill)
         
         
         let circularPath = UIBezierPath(ovalIn: bounds)
