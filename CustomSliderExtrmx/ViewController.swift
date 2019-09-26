@@ -19,10 +19,12 @@ class ViewController: UIViewController {
         
         let sliderViewHeight : CGFloat = 40
         
-         sliderView = SliderView(colors: [#colorLiteral(red: 0, green: 0.4784313725, blue: 1, alpha: 1),#colorLiteral(red: 1, green: 0.6661287546, blue: 0.656347692, alpha: 1),#colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1),#colorLiteral(red: 0, green: 0.4784313725, blue: 1, alpha: 1),#colorLiteral(red: 1, green: 0.6661287546, blue: 0.656347692, alpha: 1),#colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)] , cornerRadius : sliderViewHeight/2)
+        sliderView = SliderView(colors: [#colorLiteral(red: 0, green: 0.4784313725, blue: 1, alpha: 1),#colorLiteral(red: 1, green: 0.6661287546, blue: 0.656347692, alpha: 1),#colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1),#colorLiteral(red: 0, green: 0.4784313725, blue: 1, alpha: 1),#colorLiteral(red: 1, green: 0.6661287546, blue: 0.656347692, alpha: 1),#colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)] , cornerRadius : sliderViewHeight/2,selectedIndex : 2)
         
-        sliderView = SliderView(cornerRadius: sliderViewHeight/2, isGradientView: true, gradientColors: [#colorLiteral(red: 1, green: 0.9764705882, blue: 0.9764705882, alpha: 1),#colorLiteral(red: 1, green: 0.8549019608, blue: 0.8549019608, alpha: 1)])
+      // sliderView = SliderView(cornerRadius: sliderViewHeight/2, isGradientView: true, gradientColors: [#colorLiteral(red: 1, green: 0.9764705882, blue: 0.9764705882, alpha: 1),#colorLiteral(red: 1, green: 0.8549019608, blue: 0.8549019608, alpha: 1)],selectedIndex: 2)
         
+        
+
         
         //#fff9f9,#ffdada
         view.addSubview(sliderView)
