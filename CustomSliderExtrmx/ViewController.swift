@@ -19,8 +19,12 @@ class ViewController: UIViewController {
         
         let sliderViewHeight : CGFloat = 40
         
-         sliderView = SliderView(colors: [#colorLiteral(red: 0, green: 0.4784313725, blue: 1, alpha: 1),#colorLiteral(red: 1, green: 0.6661287546, blue: 0.656347692, alpha: 1),#colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)] , cornerRadius : sliderViewHeight/2)
+         sliderView = SliderView(colors: [#colorLiteral(red: 0, green: 0.4784313725, blue: 1, alpha: 1),#colorLiteral(red: 1, green: 0.6661287546, blue: 0.656347692, alpha: 1),#colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1),#colorLiteral(red: 0, green: 0.4784313725, blue: 1, alpha: 1),#colorLiteral(red: 1, green: 0.6661287546, blue: 0.656347692, alpha: 1),#colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)] , cornerRadius : sliderViewHeight/2)
         
+        sliderView = SliderView(cornerRadius: sliderViewHeight/2, isGradientView: true, gradientColors: [#colorLiteral(red: 1, green: 0.9764705882, blue: 0.9764705882, alpha: 1),#colorLiteral(red: 1, green: 0.8549019608, blue: 0.8549019608, alpha: 1)])
+        
+        
+        //#fff9f9,#ffdada
         view.addSubview(sliderView)
         
         sliderView.translatesAutoresizingMaskIntoConstraints = false
@@ -35,15 +39,19 @@ class ViewController: UIViewController {
         sliderView.heightAnchor.constraint(equalToConstant: sliderViewHeight).isActive = true
         
         
+        sliderView.sliderViewSelectedDelegate = self
+        
     }
 
     
-    override func viewDidAppear(_ animated: Bool) {
-        
-        
-                sliderView.skinToneCollectionView.delegate!.collectionView?(sliderView.skinToneCollectionView, didDeselectItemAt: IndexPath(item: 0, section: 0))
-
-    }
+//    override func viewDidAppear(_ animated: Bool) {
+//        
+//        
+//        let indexPath = IndexPath(item: 0, section: 0)
+//        sliderView.skinToneCollectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
+//        sliderView.skinToneCollectionView.delegate?.collectionView?(sliderView.skinToneCollectionView, didSelectItemAt: indexPath)
+//        
+//    }
     
     
 //    override func viewDidLayoutSubviews() {
@@ -63,3 +71,13 @@ class ViewController: UIViewController {
     
 }
 
+
+
+
+extension ViewController : SliderViewItemSelectedDelegate{
+    func selectedRow(index: Int, color: UIColor) {
+        print("My index is \(index)")
+    }
+    
+    
+}

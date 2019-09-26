@@ -8,7 +8,18 @@
 
 import UIKit
 
+
+
+protocol SliderViewItemSelectedDelegate : class {
+    
+    
+    func selectedRow(index : Int,color : UIColor)
+    
+}
+
+
 class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout {
+    
 
     private let roundedCornerView = UIView()
     
@@ -20,11 +31,19 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
     
     private var lastSelectedCell : IndexPath = IndexPath(item: 0, section: 0)
     
+    private var cornerRadius : CGFloat = 0
+    
     var skinToneCollectionView : UICollectionView!
     
-    var selectedIndex : Int = 0
+   // var selectedIndex : Int = 0
     
-    private var cornerRadius : CGFloat = 0
+    private var isGradientView : Bool = false
+    
+    private var gradientColors : [CGColor] = []
+    
+    weak var sliderViewSelectedDelegate : SliderViewItemSelectedDelegate?
+    
+  
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -36,19 +55,40 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
         super.init(coder : aDecoder)
     }
     
-    required init(colors : [UIColor],cornerRadius : CGFloat,isGradientView : Bool = false ) {
+    required init(colors : [UIColor] = [#colorLiteral(red: 0, green: 0, blue: 0, alpha: 0),#colorLiteral(red: 0, green: 0, blue: 0, alpha: 0),#colorLiteral(red: 0, green: 0, blue: 0, alpha: 0)],cornerRadius : CGFloat,isGradientView : Bool = false , gradientColors : [UIColor] = [#colorLiteral(red: 0.9891870618, green: 0.7692108154, blue: 0.7603701353, alpha: 1),#colorLiteral(red: 1, green: 0.6661287546, blue: 0.656347692, alpha: 1)] ,selectedIndex : Int = 0) {
         super.init(frame: CGRect.zero)
         
         colorCodeViews = colors
         
         self.cornerRadius = cornerRadius
         
+        self.isGradientView = isGradientView
+        
+        self.gradientColors = gradientColors.map{$0.cgColor}
+        
+        self.lastSelectedCell = IndexPath(item: selectedIndex, section: 0)
+        
         roundedCornerView(cornerRadius : cornerRadius)
-
+        
         
 
-        setupSkinToneView()
+
+        setupSliderColorView()
         
+//        if isGradientView{
+//
+////            let collectionViewBackgroundView = UIView()
+////            let gradientLayer = CAGradientLayer()
+////            gradientLayer.frame.size = skinToneCollectionView.frame.size
+////            // Start and end for left to right gradient
+////            gradientLayer.startPoint = CGPoint(x: 0.0, y: 0.5)
+////            gradientLayer.endPoint = CGPoint(x: 1.0, y: 0.5)
+////            gradientLayer.colors = [UIColor.blue.cgColor, UIColor.green.cgColor]
+////            skinToneCollectionView.backgroundView = collectionViewBackgroundView
+////            skinToneCollectionView.backgroundView?.layer.addSublayer(gradientLayer)
+//
+//            print(roundedCornerView.bounds)
+//        }
         
         circleView.image = makeCircleWith(imageSize: 100,backgroundColor: #colorLiteral(red: 0.7805789832, green: 0.02354164009, blue: 0.9616711612, alpha: 1))
       
@@ -103,7 +143,7 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
     }
     
     
-    private func setupSkinToneView(){
+    private func setupSliderColorView(){
 
         
         
@@ -161,7 +201,7 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
             }
             else if panGesture.state == .changed {
                 let location: CGPoint = panGesture.location(in: self)
-                print(location)
+               // print(location)
             
                 if let indexPath: IndexPath = skinToneCollectionView.indexPathForItem(at: CGPoint(x: location.x, y: yH)) {
                     if indexPath != lastSelectedCell {
@@ -176,13 +216,42 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
         
     }
 
-    /*
+    
     // Only override draw() if you perform custom drawing.
     // An empty implementation adversely affects performance during animation.
     override func draw(_ rect: CGRect) {
         // Drawing code
+       print(roundedCornerView.bounds)
+        
+                if isGradientView{
+        
+                    skinToneCollectionView.backgroundColor = .clear
+                    
+//                    let collectionViewBackgroundView = UIView()
+                    let gradientLayer = CAGradientLayer()
+                    gradientLayer.frame = roundedCornerView.bounds
+                    // Start and end for left to right gradient
+                    gradientLayer.startPoint = CGPoint(x: 0.0, y: 1.0)
+                    gradientLayer.endPoint = CGPoint(x: 1.0, y: 1.0)
+                    gradientLayer.colors = gradientColors
+                   // roundedCornerView.backgroundView = collectionViewBackgroundView
+                    roundedCornerView.layer.addSublayer(gradientLayer)
+        
+                    
+                    
+                    
+                    
+                    //print(roundedCornerView.bounds)
+                }
+        
+        
+        //let indexPath = IndexPath(item: 0, section: 0)
+        skinToneCollectionView.selectItem(at: lastSelectedCell, animated: true, scrollPosition: .left)
+        skinToneCollectionView.delegate?.collectionView?(skinToneCollectionView, didSelectItemAt: lastSelectedCell)
+        
+        
     }
-    */
+ 
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
@@ -205,7 +274,9 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print(indexPath.item)
+        //print(indexPath.item)
+        
+        self.lastSelectedCell  = indexPath
         
         let attribute = collectionView.layoutAttributesForItem(at: indexPath)
         let cellFrame = attribute?.frame ?? CGRect.zero
@@ -215,10 +286,14 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
         let extraSpacing : CGFloat = (cellFrame.width) / 2 > 20 ? 20 : (cellFrame.width) / 2
         
         
+        UIView.animate(withDuration: 0.2) {
+            [weak self] in
+            guard let `self` = self else {return}
+            self.circleView.frame = CGRect(x: ((cellFrame.midX - self.cornerRadius) - (extraSpacing/2) ), y: (cellFrame.minY - (extraSpacing/2)), width: (cellHeight) + extraSpacing , height: (cellHeight) + extraSpacing)
+        }
 
-        circleView.frame = CGRect(x: ((cellFrame.midX - cornerRadius) - (extraSpacing/2) ), y: (cellFrame.minY - (extraSpacing/2)), width: (cellHeight) + extraSpacing , height: (cellHeight) + extraSpacing)
      
-        if colorCodeViews.count != 1 {
+        if colorCodeViews.count != 1 && isGradientView{
 
             let cellPaddingForFirstAndLast : CGFloat = 5
             
@@ -232,7 +307,9 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
         }
         
         
-        print(circleView.frame)
+        sliderViewSelectedDelegate?.selectedRow(index: indexPath.item, color: colorCodeViews[indexPath.item])
+        
+       // print(circleView.frame)
     }
     
     
@@ -267,6 +344,8 @@ class SliderView: UIView,UICollectionViewDelegate,UICollectionViewDataSource,UIC
         UIGraphicsEndImageContext()
         return image
     }
+    
+    
     
 }
 
